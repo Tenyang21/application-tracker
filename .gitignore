@@ -1,0 +1,20 @@
+# secrets
+.env
+**/.env
+
+# python
+venv/
+**/venv/
+__pycache__/
+*.pyc
+
+# node / frontend
+node_modules/
+.next/
+
+# editor
+.idea/
+.vscode/
+
+# old typescript backend (kept locally, not in the repo)
+backendTS/

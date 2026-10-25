@@ -25,7 +25,6 @@ const statusOptions: { value: ApplicationStatus | "all"; label: string }[] = [
   { value: "interviewing", label: "Interviewing" },
   { value: "offer", label: "Offer" },
   { value: "rejected", label: "Rejected" },
-  { value: "withdrawn", label: "Withdrawn" },
 ]
 
 export function FilterBar({

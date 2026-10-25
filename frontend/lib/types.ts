@@ -4,7 +4,6 @@ export type ApplicationStatus =
   | "interviewing"
   | "offer"
   | "rejected"
-  | "withdrawn"
 
 export interface Application {
   _id: string

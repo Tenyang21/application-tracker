@@ -47,7 +47,6 @@ const statusOptions: { value: ApplicationStatus; label: string }[] = [
   { value: "interviewing", label: "Interviewing" },
   { value: "offer", label: "Offer" },
   { value: "rejected", label: "Rejected" },
-  { value: "withdrawn", label: "Withdrawn" },
 ]
 
 function toInputDate(val: string | null | undefined): string {
