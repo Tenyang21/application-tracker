@@ -1,24 +1,20 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from typing import Optional
 
 #schema defines the shape of data going in and out of the API
 class UserCreate(BaseModel):
-    email: str
-    password: str
+    email: EmailStr
+    password: str = Field(min_length=8)
 
-    class Config:
-        orm_mode = True
 
-class UserOut(BaseModel):
-    user_id: int
-    email: str
-    
-    class Config:
-        orm_mode = True
-    
 class UserResponse(BaseModel):
-    user_id: int
-    email: str
+    model_config = ConfigDict(from_attributes=True)
 
-    class Config:
-        orm_mode = True
+    id: int
+    email: EmailStr
+    created_at = datetime
+
+#what login returns
+class Token(BaseModel):
+    access_token: str
+    token_type = str = "bearer"
