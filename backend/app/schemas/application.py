@@ -34,4 +34,4 @@ class ApplicationResponse(BaseModel):
     incoming_phone: Optional[str] = None
     incoming_interview: Optional[date] = None
     notes: Optional[str] = None
-    created_at = datetime
+    created_at: datetime

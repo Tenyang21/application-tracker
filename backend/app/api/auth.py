@@ -1,27 +1,33 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
 
-app = FastAPI()
+from app.db import get_db
+from app.models.user import User
+from app.schemas.user import UserCreate, UserLogin, UserResponse, Token
+from app.core.security import get_password_hash, verify_password, create_access_token
+from app.api.deps import get_current_user
 
-@app.post("/register", response_model=UserResponse)
-async def register(user_in: UserCreate, db: Session = Depends(get_db)):
+router = APIRouter(prefix="/auth", tags=["auth"])
+
+@router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+def register(user_in: UserCreate, db: Session = Depends(get_db)):
+    #email must be unique
     existing_user = db.query(User).filter(User.email == user_in.email).first()
     if existing_user:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already registered")
     
-    hashed_password = get_password_hash(user_in.password)
-    new_user = User(email=user.email, password=hashed_password)
+    new_user = User(email=user.email, hashed_password=get_password_hash(user_in.password))
     db.add(new_user)
     db.commit()
-    db.refresh(new_user)
-    return {"message": "User registered successfully", "user": new_user.id}
+    db.refresh(new_user) #reloads the objects from db
+    return new_user       #leaves out hashed password
 
-@app.post("/login", response_model=Token)
-async def login(user: UserCreate, db: Session = Depends(get_db)):
-    existing_user = db.query(UserCreate).filter(UserCreate.email == user.email).first()
-    if not existing_user:
+@router.post("/login", response_model=Token)
+def login(credentials: UserLogin, db: Session = Depends(get_db)):
+    existing_user = db.query(User).filter(User.email == credentials.email).first()
+
+    if not existing_user or not verify_password(credentials.password, existing_user.hashed_password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
-    
-    if not verify_password(user.password, existing_user.password):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
-    
-    return {"message": "Login successful", "user": existing_user.email}
+
+    token = create_access_token({"sub": str(existing_user.id)})
+    return Token(access_token=token)
